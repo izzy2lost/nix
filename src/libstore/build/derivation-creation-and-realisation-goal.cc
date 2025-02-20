@@ -1,5 +1,5 @@
-#include "derivation-creation-and-realisation-goal.hh"
-#include "worker.hh"
+#include "nix/build/derivation-creation-and-realisation-goal.hh"
+#include "nix/build/worker.hh"
 
 namespace nix {
 

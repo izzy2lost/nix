@@ -53,20 +53,15 @@ else
   error('illegal editline flavor', readline_flavor)
 endif
 
-config_h = configure_file(
-  configuration : configdata,
-  output : 'config-cmd.hh',
-)
-
 add_project_arguments(
   # TODO(Qyriad): Yes this is how the autoconf+Make system did it.
   # It would be nice for our headers to be idempotent instead.
-  '-include', 'config-util.hh',
-  '-include', 'config-store.hh',
-  # '-include', 'config-fetchers.h',
-  '-include', 'config-expr.hh',
-  '-include', 'config-main.hh',
-  '-include', 'config-cmd.hh',
+  '-include', 'nix/config-util.hh',
+  '-include', 'nix/config-store.hh',
+  # '-include', 'nix/config-fetchers.h',
+  '-include', 'nix/config-expr.hh',
+  '-include', 'nix/config-main.hh',
+  '-include', 'nix/config-cmd.hh',
   language : 'cpp',
 )
 
@@ -91,27 +86,7 @@ sources = files(
   'repl.cc',
 )
 
-include_dirs = [include_directories('.')]
-
-headers = [config_h] + files(
-  'built-path.hh',
-  'command-installable-value.hh',
-  'command.hh',
-  'common-eval-args.hh',
-  'compatibility-settings.hh',
-  'editor-for.hh',
-  'installable-attr-path.hh',
-  'installable-derived-path.hh',
-  'installable-flake.hh',
-  'installable-value.hh',
-  'installables.hh',
-  'legacy.hh',
-  'markdown.hh',
-  'misc-store-flags.hh',
-  'network-proxy.hh',
-  'repl-interacter.hh',
-  'repl.hh',
-)
+subdir('nix')
 
 this_library = library(
   'nixcmd',

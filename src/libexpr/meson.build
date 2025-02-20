@@ -61,18 +61,13 @@ toml11 = dependency(
 )
 deps_other += toml11
 
-config_h = configure_file(
-  configuration : configdata,
-  output : 'config-expr.hh',
-)
-
 add_project_arguments(
   # TODO(Qyriad): Yes this is how the autoconf+Make system did it.
   # It would be nice for our headers to be idempotent instead.
-  '-include', 'config-util.hh',
-  '-include', 'config-store.hh',
-  # '-include', 'config-fetchers.h',
-  '-include', 'config-expr.hh',
+  '-include', 'nix/config-util.hh',
+  '-include', 'nix/config-store.hh',
+  # '-include', 'nix/config-fetchers.h',
+  '-include', 'nix/config-expr.hh',
   language : 'cpp',
 )
 
@@ -154,38 +149,7 @@ sources = files(
   'value/context.cc',
 )
 
-include_dirs = [include_directories('.')]
-
-headers = [config_h] + files(
-  'attr-path.hh',
-  'attr-set.hh',
-  'eval-cache.hh',
-  'eval-error.hh',
-  'eval-gc.hh',
-  'eval-inline.hh',
-  'eval-settings.hh',
-  'eval.hh',
-  'function-trace.hh',
-  'gc-small-vector.hh',
-  'get-drvs.hh',
-  'json-to-value.hh',
-  # internal: 'lexer-helpers.hh',
-  'nixexpr.hh',
-  'parser-state.hh',
-  'pos-idx.hh',
-  'pos-table.hh',
-  'primops.hh',
-  'print-ambiguous.hh',
-  'print-options.hh',
-  'print.hh',
-  'repl-exit-status.hh',
-  'search-path.hh',
-  'symbol-table.hh',
-  'value-to-json.hh',
-  'value-to-xml.hh',
-  'value.hh',
-  'value/context.hh',
-)
+subdir('nix')
 
 subdir('primops')
 

@@ -2,7 +2,7 @@
 #include "nix_api_flake_internal.hh"
 #include "nix_api_util_internal.h"
 
-#include "flake/flake.hh"
+#include "nix/flake/flake.hh"
 
 nix_flake_settings * nix_flake_settings_new(nix_c_context * context)
 {

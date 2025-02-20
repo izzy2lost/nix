@@ -1,4 +1,4 @@
-#include "flake/settings.hh"
+#include "nix/flake/settings.hh"
 
 namespace nix::flake {
 

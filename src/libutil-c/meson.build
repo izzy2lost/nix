@@ -36,7 +36,7 @@ add_project_arguments(
   # It would be nice for our headers to be idempotent instead.
 
   # From C++ libraries, only for internals
-  '-include', 'config-util.hh',
+  '-include', 'nix/config-util.hh',
 
   # From C libraries, for our public, installed headers too
   '-include', 'config-util.h',

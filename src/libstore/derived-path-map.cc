@@ -1,5 +1,5 @@
-#include "derived-path-map.hh"
-#include "util.hh"
+#include "nix/derived-path-map.hh"
+#include "nix/util.hh"
 
 namespace nix {
 
@@ -52,7 +52,7 @@ typename DerivedPathMap<V>::ChildNode * DerivedPathMap<V>::findSlot(const Single
 
 // instantiations
 
-#include "derivation-creation-and-realisation-goal.hh"
+#include "nix/build/derivation-creation-and-realisation-goal.hh"
 namespace nix {
 
 template<>
