@@ -1,0 +1,101 @@
+name: Android Build with Termux
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Install Nix and Devenv
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Build with Nix
+        run: nix-build
+       
+      - uses: cachix/cachix-action@v14
+        with:
+          name: devenv
+      
+      - name: Build the Devenv shell and run any pre-commit hooks
+        run: devenv test
+        
+      - name: Run a single command in the Devenv shell
+        run: devenv shell hello
+        
+      - name: Run a multi-line command in the Devenv shell
+        shell: bash
+        run: |
+          devenv shell bash -- -e <<EOF
+          hello
+          say-bye
+          EOF
+
+      - name: Install Android Emulator (AArch64 & ARMv7)
+        run: |
+          sdkmanager --install "system-images;android-32;google_apis;arm64-v8a"
+          sdkmanager --install "system-images;android-25;default;armeabi-v7a"
+          avdmanager create avd --force --name my-android-emulator-aarch64 --package "system-images;android-32;google_apis;arm64-v8a"
+          avdmanager create avd --force --name my-android-emulator-armv7 --package "system-images;android-25;default;armeabi-v7a"
+          echo "Android emulators set up successfully"
+
+      - name: Start Android Emulator (AArch64)
+        run: |
+          emulator -avd my-android-emulator-aarch64 -no-window -no-audio -no-boot-anim -no-snapshot -accel on -gpu swiftshader_indirect &
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+          echo "AArch64 emulator started successfully"
+
+      - name: Download and Install Termux
+        run: |
+          wget -O termux.apk https://f-droid.org/repo/com.termux_118.apk
+          adb install termux.apk
+          echo "Termux installed successfully"
+
+      - name: Push and Execute Build Script in Termux (AArch64)
+        run: |
+          adb push myscript.sh /data/data/com.termux/files/home/myscript.sh
+          adb shell chmod +x /data/data/com.termux/files/home/myscript.sh
+          adb shell /data/data/com.termux/files/home/myscript.sh aarch64
+          adb shell mv /data/data/com.termux/files/home/build/us_pc/sm64coopdx.apk /data/data/com.termux/files/home/build/us_pc/sm64coopdx-aarch64.apk
+          echo "Build for AArch64 completed and APK renamed"
+
+      - name: Start Android Emulator (ARMv7)
+        run: |
+          emulator -avd my-android-emulator-armv7 -no-window -no-audio -no-boot-anim -no-snapshot -accel on -gpu swiftshader_indirect &
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+          echo "ARMv7 emulator started successfully"
+
+      - name: Push and Execute Build Script in Termux (ARMv7)
+        run: |
+          adb push myscript.sh /data/data/com.termux/files/home/myscript.sh
+          adb shell chmod +x /data/data/com.termux/files/home/myscript.sh
+          adb shell /data/data/com.termux/files/home/myscript.sh armv7
+          adb shell mv /data/data/com.termux/files/home/build/us_pc/sm64coopdx.apk /data/data/com.termux/files/home/build/us_pc/sm64coopdx-armv7.apk
+          echo "Build for ARMv7 completed and APK renamed"
+
+      - name: Retrieve Built APK for ARMv7
+        run: |
+          adb pull /data/data/com.termux/files/home/build/us_pc/sm64coopdx-armv7.apk ./sm64coopdx-armv7.apk
+          echo "ARMv7 APK pulled successfully"
+
+      - name: Retrieve Built APK for AArch64
+        run: |
+          adb pull /data/data/com.termux/files/home/build/us_pc/sm64coopdx-aarch64.apk ./sm64coopdx-aarch64.apk
+          echo "AArch64 APK pulled successfully"
+
+      - name: Upload Built APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sm64coopdx-apks
+          path: |
+            ./sm64coopdx-armv7.apk
+            ./sm64coopdx-aarch64.apk
